@@ -1,0 +1,38 @@
+# Disciplina: Arquitetura e Organização de Processadores
+# Atividade: Avaliação 03 – Procedimentos em Linguagem de Montagem
+# Exercício 01
+# Alunos: João Vitor Loch Martins e Ahmad Reiano Wahab
+
+.data
+	x : .asciz  "Entre com o valor de X: "
+	y: .asciz  "Entre com o valor de Y: "
+	result: .asciz  "\nO resultado é: "
+
+.text
+	j main
+soma:	
+	add a0, zero, t0 
+	add a2, zero, t1 
+	add a1, a0, a2 
+	jr ra 
+main:
+	addi a7, zero, 4 
+	la a0, x
+	ecall 
+	addi a7, zero, 5 
+	ecall 
+	add t0, zero, a0 
+	addi a7, zero, 4
+	la a0, y 
+	ecall 
+	addi a7, zero, 5 
+	ecall 
+	add t1, zero, a0 
+	jal soma 
+	add s0, zero, a1 
+	addi a7, zero, 4 
+	la a0, result 
+	ecall 
+	addi a7, zero, 1 
+	add a0, zero, s0 
+	ecall 

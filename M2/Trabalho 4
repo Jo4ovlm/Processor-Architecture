@@ -1,0 +1,149 @@
+# Disciplina: Arquitetura e Organização de Processadores
+# Atividade: Avaliação 04 – Programação de Procedimentos
+# Alunos: João Vitor Loch Martins e Ahmad Reiano Wahab
+
+.data
+	vetA: .word 0,0,0,0,0,0,0,0
+	pedirN: .asciz "Informe o tamanho do vetA (max 8): "
+	error: .asciz "Valor invalido, informe um numero de 1 a 8\n"
+	pedevet: .asciz "\nVetA ["
+	colchete: .asciz "]: "
+	
+.text
+	la s0, vetA #Declara o endereço base do VetA
+	li s1, 0 #Da valor'0' pro s1 (serve como i)
+	li s2, 1 #Da valor'1' pro s2, com fim de comparação
+	li s3, 8 #Da valor '8' pro s3 com fim de comparação
+	j main #ignora as subrotinas por enquanto e pula pro main
+
+pedeN:	addi a7, zero, 4 #da o comando de escrever string pro ecall
+	la a0, pedirN #Fornece a string pedirN pro ecall mostrar
+	ecall
+	li a7, 5 #Da comando de ler inteiro pro ecall
+	ecall
+	add a4, zero, a0 #Salva o inteiro lido em a4
+	blt a4, a2, erro #Se a4<a2(n<1) da msg de erro
+	bgt a4, a3, erro #se a4>a3(n>8) da msg de erro
+	mv a0, a4 #poe o a4 no a0 pra retornar pro main
+	jr ra #Volta pro main
+	
+erro:	li a7, 4 #da o comando de escrever string pro ecall
+	la a0, error #Fornece a msg de ero pra mostrar no ecall	
+	ecall
+	j pedeN	#volta pro pedeN
+	
+pedeV:	li a7, 4 #da o comando de escrever string pro ecall
+	la a0, pedevet #fornece a msg pedevet pro ecall mostrar
+	ecall
+	li a7, 1 #da comando de escrever inteiro pro ecall
+	mv a0, a2 #fornece o numero em a2 pro ecall mostrar
+	ecall
+	li a7, 4 #da o comando de escrever string pro ecall
+	la a0, colchete #Fornece o colchete pro ecall fechar
+	ecall
+	add a4, a2, a2 #i*2
+	add a4, a4, a4 #i*4
+	add a4, a4, a5 #4i + endereço base (endereço absoluto)
+	li a7, 5 #da comando ler inteiro pro ecall
+	ecall 
+	mv a6, a0 #grava o inteiro lido no a6
+	sw a6, 0(a4) #guarda na casa i do vetor
+	addi a2, a2, 1 #i++
+	bne a2, a3, pedeV #se i<8 volta pro inicio do loop
+	jr ra #volta pro main
+	
+bubblesort:
+	li a4, 1 #swap = true
+while:	bne a4, a3, Fwhile #se a4 != 1 termina o procedimento
+	li a4, 0 #define o a4 como 0 (swap = false)
+	li a2, 0 #Seta o i como 0, pras proximas iterações
+for:	add a5, a2, a2 #i*2
+	add a5, a5, a5 #i*4
+	add a5, a5, a0 #4i + end base do vet
+	lw t0, 0(a5) #Da load no conteudo do vet[i]
+	addi a6, a2, 1 #Pega o i+1(vou chamar de j)
+	add a7, a6, a6 #faz j*2
+	add a7, a7, a7 #j*4
+	add a7, a7, a0 #4j + end base do vet
+	lw t1, 0(a7) #Da load no vet[j]
+	ble t0, t1, Ffor #Se o vet[i] < vet[j] pula a instrução de troca
+	li a4, 1 #Seta o a4 como 1 (swap = true)
+	sw t0, 0(a7) #Salva o vet[i] no vet[j]
+	sw t1, 0(a5) #salva o vet[j] no vet[i]
+Ffor:	addi a2, a2, 1 #i++
+	addi t2, a1, -1 #seta o n como tamanho do vet - 1 (esse processo so usa ate a penultima casa)
+	slt t2, a2, t2 #ve se o i<n
+	beq t2, a3, for #se i<n volta pro for
+	j while #volta pro while
+Fwhile:	jr ra #volta pro main
+	
+	
+	
+mostraVet:
+	li a7, 4 #da o comando de escrever string pro ecall
+	la a0, pedevet #fornece a string pedevet pro ecall mostrar
+	ecall
+	li a7, 1 #da o comando mostrar inteiro pro ecall
+	mv a0, a2 #fornece o valor de a2 pra ser mostrado pelo ecall
+	ecall
+	li a7, 4 #da o comando de escrever string pro ecall
+	la a0, colchete #fornece o colchete pra mostrar no ecall
+	ecall
+	add a4, a2, a2 #i*2
+	add a4, a4, a4 #i*4
+	add a4, a4, a5 #4i + end base do vet
+	lw a6, 0(a4) #Load para o a6 o valor em vet[i]
+	li a7, 1 #Da o comando de mostrar inteiro pro ecall
+	mv a0, a6 #manda o valor de a6 para ser mostrado pelo ecall
+	ecall
+	addi a2, a2, 1 #i++
+	bne a2, a3, mostraVet #se i<n volta pro mostravet
+	jr ra #volta pro main
+
+main:	addi sp, sp, -8 #aumenta o tamanho da pilha em 8
+	sw s2, 0(sp) #Guarda o valor de s2 na pilha 
+	sw s3, 4(sp) #Guarda o valor de s3 na pilha
+	mv a2, s2 #Da o valor de s2 pro a2
+	mv a3, s3 #Da o valor de s3 pro a3
+	jal pedeN #Entra no procedimento pedeN
+	lw s3, 4(sp) #Recupera o valor de s3 que estava na pilha 
+	lw s2, 0(sp) #Recupera o valor de s2 que estava na pilha 
+	addi sp, sp, 8 #Diminui o tamanho da pilha em 8
+	mv s4, a0 #Guarda o resultado do procedimento em s4
+	addi sp, sp, -12 #aumenta o tamanho da pilha em 12
+	sw s1, 0(sp) #Guarda o valor de s1 na pilha
+	sw s4, 4(sp) #Guarda o valor de s4 na pilha
+	sw s0, 8(sp) #Guarda o valor de s0 na pilha
+	mv a2, s1 #Da o valor de s1 pro a2
+	mv a3, s4 #Da o valor de s4 pro a3
+	mv a5, s0 #Da o valor de s0 pro a5
+	jal pedeV #Entra no procedimento pedeV
+	lw s0, 8(sp) #Recupera o valor de s0 que estava na pilha 
+	lw s4, 4(sp) #Recupera o valor de s4 que estava na pilha 
+	lw s1, 0(sp) #Recupera o valor de s1 que estava na pilha 
+	addi sp, sp, 12 #Diminui o tamanho da pilha em 12
+	addi sp, sp, -12 #aumenta o tamanho da pilha em 12
+	sw s0, 0(sp) #Guarda o valor de s0 na pilha
+	sw s4, 4(sp) #Guarda o valor de s4 na pilha
+	sw s1, 8(sp) #Guarda o valor de s1 na pilha
+	mv a0, s0 #Da o valor de s0 pro a0
+	mv a1, s4 #Da o valor de s4 pro a1
+	mv a2, s1 #Da o valor de s1 pro a2
+	li a3, 1 #Seta o a3 como 1
+	jal bubblesort #Entra no procedimento bubblesort
+	lw s1, 8(sp) #Recupera o valor de s1 que estava na pilha 
+	lw s4, 4(sp) #Recupera o valor de s4 que estava na pilha 
+	lw s0, 0(sp) #Recupera o valor de s0 que estava na pilha 
+	addi sp, sp 12 #Diminui o tamanho da pilha em 12
+	addi sp, sp, -12 #aumenta o tamanho da pilha em 12
+	sw s1, 0(sp) #Guarda o valor de s1 na pilha
+	sw s4, 4(sp) #Guarda o valor de s4 na pilha
+	sw s0, 8(sp) #Guarda o valor de s0 na pilha
+	mv a2, s1 #Da o valor de s1 pro a2
+	mv a3, s4 #Dao valor de s4 pro a3
+	mv a5, s0 #Da o valor de s0 pro a5
+	jal mostraVet #Entra no proceimento mostraVet
+	lw s0, 8(sp) #Recupera o valor de s0 que estava na pilha 
+	lw s4, 4(sp) #Recupera o valor de s4 que estava na pilha 
+	lw s1, 0(sp) #Recupera o valor de s1 que estava na pilha 
+	addi sp, sp, 12 #Diminui o tamanho da pilha em 12

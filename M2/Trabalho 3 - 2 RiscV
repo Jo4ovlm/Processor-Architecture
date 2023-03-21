@@ -1,0 +1,52 @@
+# Disciplina: Arquitetura e Organização de Processadores
+# Atividade: Avaliação 03 – Procedimentos em Linguagem de Montagem
+# Exercício 02
+# Alunos: João Vitor Loch Martins e Ahmad Reiano Wahab
+
+.data
+	x : .asciz  "Entre com o valor de X: "
+	y: .asciz  "Entre com o valor de Y: "
+	result: .asciz  "\nO resultado é: "
+
+.text
+	j main
+soma:	
+	addi sp, sp, -12
+	sw s0, 0(sp)
+	sw s1, 4(sp)
+	sw s2, 8(sp)
+	add a0, zero, t0 #Salva o t0 no a0 pra operação
+	add a2, zero, t1 #Salva o t1 no a2 pra operação
+	add a7, a0, a2 #Faz a soma e salva no a7
+	add s0, zero, a0
+	add s1, zero, a1
+	add s2, zero, a2
+	lw s2, 8(sp)
+	lw s1, 4(sp)
+	lw s0, 0(sp)
+	addi sp, sp, 12
+	jr ra #Volta pra intrução apos o jal
+main:	
+	addi s0, zero, 7
+	addi s1, zero, 8
+	addi s2, zero, 9
+	addi a7, zero, 4 #Da o valor "4" pro a7, sinalizando escrever string na tela
+	la a0, x #Da um load adress na string "x" , pra ela ser mostrada via ecall
+	ecall #Opera o ecall 
+	addi a7, zero, 5 #Da o valor "5" pro a7, sinalizando ler inteiro
+	ecall #Opera o ecall
+	add t0, zero, a0 #Grava o inteiro lido pelo ecall, que estava no a7, no t0
+	addi a7, zero, 4 #Da o valor "4" pro a7, sinalizando escrever string na tela
+	la a0, y #Da um load adress na string "y" , pra ela ser mostrada via ecall
+	ecall #Opera o ecall
+	addi a7, zero, 5 #Da o valor "5" pro a7, sinalizando ler inteiro
+	ecall #Opera o ecall
+	add t1, zero, a0 #Grava o inteiro lido pelo ecall, que estava no a7, no $s1
+	jal soma #Pula pro procedimento soma, e salva o endereço de retorno pra instrução debaixo
+	add s3, zero, a7 #salva o resultado da soma no s3
+	addi a7, zero, 4 #Da o valor "4" pro a7, sinalizando escrever string na tela
+	la a0, result #Da um load adress na string "result" , pra ela ser mostrada via ecall
+	ecall #Opera o ecall
+	addi a7, zero, 1 #Da um valor "1" pro a7, sinalizando escrever inteiro
+	add a0, zero, s3 #Poe o valor desejado ($s3) no a0, ja que ele que sera mostrado
+	ecall #opera o ecall

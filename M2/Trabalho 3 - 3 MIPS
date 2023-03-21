@@ -1,0 +1,66 @@
+# Disciplina: Arquitetura e Organização de Processadores
+# Atividade: Avaliação 03 – Procedimentos em Linguagem de Montagem
+# Exercício 02
+# Alunos: João Vitor Loch Martins e Ahmad Reiano Wahab
+	
+.data
+	str1: .asciiz "Entre com Vet["
+	str2: .asciiz "]:"
+	str3: .asciiz "\n Vet["
+	vetor: .word 0, 0, 0, 0, 0, 0, 0, 0
+
+.text 
+	la $s0, vetor  #Da load no endereço base do vetor
+	li $s1, 0  #Seta o valor de i como 0
+	li $s2, 8  #Atribui 8 ao $s2 pra comparar depois
+	j main
+	
+verzero:addi $sp,$sp, -8   #aumenta o tamanho da pilha em 12bits(3 casas)
+	sw $s1, 0($sp)  #Guarda o $s1 na pilha
+	sw $s2, 4($sp)  #Guarda o $s2 na pilha
+	add $a0,$0,$s1  #Atribui o valor de $s1 ao $a0
+	add $a3,$0,$s2  #Atribui o valor de $s2 ao $a3
+loop:	add $a1,$a0,$a0 #soma i+i
+	add $a1,$a1,$a1 #soma 2i + 2i
+	add $a1,$a1,$s0 #soma 4i + end base do vetor
+	lw $a2, 0($a1)  #Da load na casa i do vetor
+	addi $a0, $a0, 1 #i++
+	bne $a2,$0, nzero #se vet[i] for diferente de 0 pula pro nzero
+	addi $v0,$v0, 1 #se vet[i] for zero soma 1 pro contador
+nzero: 	bne $a0, $s2, loop #se i<8 volta pro loop
+	lw $s2, 4($sp) #Devolve o valor de $s2 original
+	lw $s1, 0($sp) #Devolve o valor de $s1 original
+	addi $sp, $sp, 8 #Tira o espaço reservado pra pilha
+	jr $ra #volta pra instrução apos o jal
+	
+main:	addi $v0,$0, 4 #Da o valor "4" pro $v0, sinalizando escrever string na tela
+	la $a0, str1 #Da um load adress na string "str1" , pra ela ser mostrada via syscall
+	syscall
+	addi $v0,$0,1 #Da um valor "1" pro $v0, sinalizando escrever inteiro
+	add $a0, $0,$s1 #Da o valor de $s1 pro $a0 e mostrar no sycall
+	syscall
+	addi $v0,$0, 4 #Da o valor "4" pro $v0, sinalizando escrever string na tela
+	la $a0, str2 #Da um load adress na string "str1" , pra ela ser mostrada via syscall
+	syscall
+	add $t0, $s1,$s1 #soma i+i
+	add $t0, $t0,$t0 #soma 2i + 2i
+	add $t0, $t0,$s0 #soma 4i + end base do vetor
+	addi $v0, $0, 5 #Da o valor "5" pro $v0, sinalizando ler inteiro
+	syscall
+	add $t1, $0,$v0 #Grava o inteiro lido pelo syscall, que estava no $v0, no $s0
+	sw $t1, 0($t0) #Salva o t1 no vetor[i]
+	addi $s1, $s1, 1 #i++
+	bne $s1,$s2, main #se i<8 volta pro label main
+	addi $s1,$0,0 #Reseta o i pra 0
+	addi $v0, $0,0 #deixa o $v0 como 0 pro contador do procedimento
+	jal verzero #Pula pro procedimento verzero, e salva o endereço de retorno pra instrução debaixo
+	add $s3, $0,$v0 #Salva o resultado do proced em $s3
+	addi $v0,$0,1 #Da o valor 1 pro syscall pra ele mostrar um valor inteiro
+	add $a0, $0,$s3 #manda o $s3 pro $a0 pra ele mostrar no syscall
+	syscall
+	
+	
+	
+	
+	
+	

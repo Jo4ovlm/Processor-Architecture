@@ -1,0 +1,116 @@
+# Disciplina: Arquitetura e Organização de Processadores
+# Atividade: Avaliação 02 - Programação em Linguagem de Montagem
+#Alunos: Ahmad Reiano Wahab e João Vitor Loch Martins
+
+.data 
+	vetorA: .word 0,0,0,0,0,0,0,0
+	vetorB: .word 0,0,0,0,0,0,0,0
+	vetorC: .word 0,0,0,0,0,0,0,0
+	pedirN: .asciiz "Quantas casas terao o vetor: "
+	stringA: .asciiz "Entre com A["
+	stringB: .asciiz "Entre com B["
+	fecha: .asciiz "]: "
+	mostraC: .asciiz "\nO valor de C["
+	error: .asciiz "\nValor invalido\n"
+
+.text 
+
+	la $s0, vetorA #Carrega o endereço base do vetor A
+	la $s1, vetorB #Carrega o endereço base do vetor B
+	la $s2, vetorC #Carrega o endereço base do vetor C
+	addi $s3, $0, 0 #Atribui o valor 0 ao $s3 (vai servir como i)
+	addi $s5, $0, 8 #seta o valor de $s5 pra 8(comparação)
+	addi $s6, $0, 1 #seta o valor de $s6 pra 1 (comparação
+pedeN:	addi $v0, $0, 4 #Da o comando de printar string pro syscall
+	la $a0, pedirN #Carrega a 'pedirN' para ser printada pelo syscall
+	syscall
+	addi $v0, $0, 5 #Da o comando de ler inteiro pro syscall
+	syscall
+	add $s4, $0, $v0 #Guarda o valor em $s4 para servir de n para o 'for'
+	blt $s4, $s6, erro #se o $s4(n) for menor que o $s6(1) vai pra msg de errp
+	bgt $s4, $s5, erro #se o $s4(n) for maior que o $s5(8) vai pra msg de errp
+loopA:	addi $v0, $0, 4	#Da o comando de printar string pro syscall
+	la $a0, stringA #Carrega a 'stringA' para ser printada pelo syscall
+	syscall
+	addi $v0, $0, 1 #Da o comando de printar numero inteiro pro syscall
+	add $a0, $0, $s3 #Carrega o valor de i no $a0 pra ser printado
+	syscall
+	addi $v0, $0, 4 #Da o comando de printar string pro syscall
+	la $a0, fecha #Carrega a 'fecha' para ser printada pelo syscall
+	syscall
+	add $t0, $s3, $s3 #Faz o i+i
+	add $t0, $t0, $t0 #Faz o 2i+2i
+	add $t0, $t0, $s0 #Pega o endereço absoluto do vetorA[i]
+	lw $t1, 0($t0)	#Da load na casa i do vetorA
+	addi $v0, $0, 5 #Da o comando de ler inteiro pro syscall
+	syscall
+	add $t2, $0, $v0 #Guarda o valor lido pelo syscall ($v0) no $t2
+	sw $t2, 0($t0) #Salva o valor no vetorA[i]
+	addi $s3, $s3, 1 #i++
+	bne $s3, $s4, loopA #Se o i<n($s4) volta pro loop
+	addi $s3, $0, 0 #Reseta o i para o proximo loop
+loopB: 	addi $v0, $0, 4	#Da o comando de printar string pro syscall
+	la $a0, stringB #Carrega a 'stringB' para ser printada pelo syscall
+	syscall
+	addi $v0, $0, 1 #Da o comando de printar numero inteiro pro syscall
+	add $a0, $0, $s3 #Carrega o valor de i no $a0 pra ser printado
+	syscall
+	addi $v0, $0, 4 #Da o comando de printar string pro syscall
+	la $a0, fecha #Carrega a 'fecha' para ser printada pelo syscall
+	syscall
+	add $t0, $s3, $s3 #Faz o i+i
+	add $t0, $t0, $t0 #Faz o 2i+2i
+	add $t0, $t0, $s1 #Pega o endereço absoluto do vetorB[i]
+	lw $t1, 0($t0) #Da load na casa i do vetorB
+	addi $v0, $0, 5 #Da o comando de ler inteiro pro syscall
+	syscall
+	add $t2, $0, $v0 #Guarda o valor lido pelo syscall ($v0) no $t2
+	sw $t2, 0($t0) #Salva o valor no vetorB[i]
+	addi $s3, $s3, 1 #i++
+	bne $s3, $s4, loopB #Se i<n volta pro loop
+	addi $s3, $0, 0
+loopC:  add $t0, $s3, $s3 # i+i
+    	add $t0, $t0, $t0 # 2i+2i
+    	add $t0, $t0, $s0 # Endereço absoluto do vetorA[i]
+    	lw  $t1, 0($t0) #Da load no vetorA[i] 
+    	add $t2, $s3, $s3 #i+i
+    	add $t2, $t2, $t2 #2i+2i
+    	add $t2, $t2, $s1 # Endereço absoluto de vetorB[i]
+   	lw  $t3, 0($t2)	# Da load no vetorB[i]
+    	slt $t4, $t1, $t3 # Verifica se o vetorA[i] < vetorB[i]
+   	add $t5, $s3, $s3 #i+i
+   	add $t5, $t5, $t5 #2i+2i
+   	add $t5, $t5, $s2 # Endereço absoluto do vetorC[i]
+   	bne $t4, $0, Amenor #Se vetor[A]>vetorB[i] vai pro 'Amenor'
+   	sw $t1, 0($t5) #Salva o valor do vetorA[i] no vetorC[i]
+   	j depois #pula para depois do 'Amenor' 
+Amenor:	sw $t3, 0($t5)#Salva o valor do vetorB[i] no vetorC[i]
+depois: addi $v0, $0, 4 #Da o comando de printar string pro syscall
+    	la $a0, mostraC #Carrega a 'mostraC' para ser printada pelo syscall
+   	syscall
+   	addi $v0, $0, 1 #Da o comando de printar numero inteiro pro syscall
+    	add $a0, $0, $s3 #Carrega o valor de i no $a0 pra ser printado
+	syscall
+    	addi $v0, $0, 4 #Da o comando de printar string pro syscall
+    	la $a0, fecha #Carrega a 'fecha' para ser printada pelo syscall
+    	syscall
+    	lw $t6, 0($t5) #Da load no vetorC[i] para o $t6
+    	addi $v0, $0, 1 #Da o comando de printar numero inteiro pro syscall
+    	add $a0, $0, $t6 #Carrega o valor do vetorC[i] no $a0 pra ser printado
+    	syscall
+    	addi $s3, $s3, 1 #i++
+    	bne $s3, $s4, loopC #se i<n volta pro loop
+    	j exit
+    	
+erro:	addi $v0, $0, 4	#Da o comando de printar string pro syscall
+	la $a0, error #Carrega a 'erro' para ser printada pelo syscall
+	syscall
+	j pedeN #volta pro pedeN
+
+exit: 	nop #encerra o programa
+	
+	
+	
+	
+	
+	

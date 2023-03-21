@@ -1,0 +1,36 @@
+# Disciplina: Arquitetura e Organização de Processadores
+# Atividade: Avaliação 03 – Procedimentos em Linguagem de Montagem
+# Exercício 02
+# Alunos: João Vitor Loch Martins e Ahmad Reiano Wahab
+
+.data 
+	result: .asciiz  "\nO resultado de 7+8+9 é: "
+
+.text
+	j main
+soma:	addi $sp, $sp, -12  #aumenta o tamanho da pilha em 12bits(3 casas)
+	sw $s0, 0($sp)	#Guarda o $s0 na pilha
+	sw $s1, 4($sp)	#Guarda o $s1 na pilha
+	sw $s2, 8($sp)	#Guarda o $s2 na pilha
+	add $a0,$zero,$s0  #Passa o valor do $s0 pro $a0 
+	add $a1,$zero,$s1  #Passa o valor do $s1 pro $a1 
+	add $a2,$zero,$s2  #Passa o valor do $s2 pro $a2 
+	add $a0,$a0,$a1	 #Faz a soma do 7+8
+	add $v0,$a0,$a2  #Faz a soma do 9+(7+8) e salva no $v0
+	lw $s2, 8($sp)	#Devolve o valor original do $s2
+	lw $s1, 4($sp)	#Devolve o valor original do $s1
+	lw $s0, 0($sp)	#Devolve o valor original do $s0
+	addi $sp, $sp, 12  #Tira o espaço reservado pra pilha
+	jr $ra  #Volta pra instrução apos o jal
+main:	addi $s0, $zero, 7  #Atribui o 7 ao $s0
+	addi $s1, $zero, 8  #Atribui o 8 ao $s1
+	addi $s2, $zero, 9  #Atribui o 9 ao $s2
+	jal soma  #Pula pro procedimento soma, e salva o endereço de retorno pra instrução debaixo
+	add $s3, $zero,$v0  #Salva o resultado da soma no $s3
+	addi $v0,$zero,4  #Da o valor "4" pro $v0, sinalizando escrever string na tela
+	la $a0, result  #Da um load adress na string "result" , pra ela ser mostrada via syscall
+	syscall
+	addi $v0, $0, 1 #Da um valor "1" pro $v0, sinalizando escrever inteiro
+	add $a0, $0, $s3  #Da o valor do $s3 pro $a0 pra mostrar pelo syscall
+	syscall #opera o syscall
+	
