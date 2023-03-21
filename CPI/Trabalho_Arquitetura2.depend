@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1661801251 source:c:\users\jo4ov\onedrive\Área de trabalho\faculdade\3 semestre\algoritimos 2\trabalho_arquitetura2\main.cpp
+	<iostream>
+	<fstream>
+	<string>
+

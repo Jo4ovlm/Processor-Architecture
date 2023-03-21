@@ -1,0 +1,26 @@
+000 010 - j - 3 ciclos
+000 011 - jal - 3 ciclos
+000 100 - beq - 3 cilos
+000 101 - bne - 3 ciclos
+001 000 - addi -  4 ciclos
+001 010 - slti - 4 ciclos 
+001 100 - andi - 4 ciclos
+001 101 - ori - 4 ciclos
+001 110 - xori - 4 ciclos
+100 011 - lw - 5 ciclos
+101 011 - sw - 4 ciclos 
+001 111 - lui - 4 ciclos
+
+Formato R (op code 000 000):
+000 000 - sll - 4 ciclos
+000 010 - srl - 4 ciclos
+001 000 - jr - 4 ciclos
+100 000 - add - 4 ciclos
+100 010 - sub - 4 ciclos
+100 100 - and - 4 ciclos
+100 101 - or - 4 ciclos
+100 110 - xor - 4 ciclos
+100 111 - nor - 4 ciclos
+101 010 - slt - 4 ciclos
+
+
